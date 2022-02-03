@@ -1,0 +1,57 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using CinemaApi.Models;
+
+namespace CinemaApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class MoviesController : ControllerBase
+    {
+        private static List<Movie> movies = new List<Movie>
+        {
+            new Movie()
+            {
+                Id = 0,
+                Name = "Mission impossible 7",
+                Language = "English"
+            },
+            new Movie()
+            {
+                Id = 1,
+                Name = "The Matrix Revolution",
+                Language = "English"
+            }
+        };
+
+        [HttpGet]
+        public IEnumerable<Movie> Get()
+        {
+            return movies;
+        }
+
+        [HttpPost]
+        public Movie Post([FromBody] Movie movie)
+        {
+            movies.Add(movie);
+            return movie;
+        }
+
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody]Movie movie)
+        {
+            movies[id] = movie;
+        }
+
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+            movies.RemoveAt(id);
+        }
+    }
+}

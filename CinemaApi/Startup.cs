@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CinemaApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaApi
 {
@@ -28,6 +30,7 @@ namespace CinemaApi
         {
 
             services.AddControllers();
+            services.AddDbContext<CinemaDbContext>(option => option.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CinemaDB;Integrated Security = True"));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CinemaApi", Version = "v1" });
@@ -35,7 +38,7 @@ namespace CinemaApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CinemaDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -49,6 +52,7 @@ namespace CinemaApi
             app.UseRouting();
 
             app.UseAuthorization();
+            dbContext.Database.EnsureCreated();
 
             app.UseEndpoints(endpoints =>
             {

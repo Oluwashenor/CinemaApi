@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using CinemaApi.Data;
 using CinemaApi.Models;
+using System.Threading.Tasks;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CinemaApi.Controllers
 {
@@ -13,45 +14,55 @@ namespace CinemaApi.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        private static List<Movie> movies = new List<Movie>
-        {
-            new Movie()
-            {
-                Id = 0,
-                Name = "Mission impossible 7",
-                Language = "English"
-            },
-            new Movie()
-            {
-                Id = 1,
-                Name = "The Matrix Revolution",
-                Language = "English"
-            }
-        };
+        private CinemaDbContext _dbContext;
 
+        public MoviesController(CinemaDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        // GET: api/<MoviesController>
         [HttpGet]
         public IEnumerable<Movie> Get()
         {
-            return movies;
+            return _dbContext.Movies;
         }
 
+        // GET api/<MoviesController>/5
+        [HttpGet("{id}")]
+        public Movie Get(int id)
+        {
+            var movieInDB = _dbContext.Movies.Find(id);
+            return movieInDB;
+        }
+
+        // POST api/<MoviesController>
         [HttpPost]
         public Movie Post([FromBody] Movie movie)
         {
-            movies.Add(movie);
+            _dbContext.Movies.Add(movie);
+            _dbContext.SaveChanges();
             return movie;
         }
 
+        // PUT api/<MoviesController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]Movie movie)
+        public Movie Put(int id, [FromBody] Movie movie)
         {
-            movies[id] = movie;
+            var movieInDb = _dbContext.Movies.Find(id);
+            movieInDb.Name = movie.Name;
+            movieInDb.Language = movie.Language;
+            _dbContext.SaveChanges();
+            return movieInDb;
+            
         }
 
+        // DELETE api/<MoviesController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            movies.RemoveAt(id);
+            var movieInDb = _dbContext.Movies.Find(id);
+            _dbContext.Movies.Remove(movieInDb);
+            _dbContext.SaveChanges();
         }
     }
 }

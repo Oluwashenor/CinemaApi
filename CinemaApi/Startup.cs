@@ -30,6 +30,7 @@ namespace CinemaApi
         {
 
             services.AddControllers();
+            services.AddMvc().AddXmlDataContractSerializerFormatters();
             services.AddDbContext<CinemaDbContext>(option => option.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CinemaDB;Integrated Security = True"));
             services.AddSwaggerGen(c =>
             {
@@ -46,13 +47,13 @@ namespace CinemaApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CinemaApi v1"));
             }
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthorization();
-            dbContext.Database.EnsureCreated();
 
             app.UseEndpoints(endpoints =>
             {

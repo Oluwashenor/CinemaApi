@@ -116,6 +116,22 @@ namespace CinemaApi.Controllers
         }
 
 
+        [Authorize]
+        [HttpGet("[action]")]
+        public IActionResult FindMovie(string movieName)
+        {
+            var movies = from movie in _dbContext.Movies
+                         where movie.Name.StartsWith(movieName)
+                         select new
+                         {
+                             Id = movie.Id,
+                             Name = movie.Name,
+                            ImageUrl = movie.ImageUrl
+                         };
+            return Ok(movies);
+        }
+
+
         // DELETE api/<MoviesController>/5
         [Authorize(Roles ="Admin")]
         [HttpDelete("{id}")]

@@ -23,20 +23,34 @@ namespace CinemaApi.Controllers
         }
 
         // GET: api/<MoviesController>
-        [HttpGet]
-        public IActionResult Get()
+        [Authorize]
+        [HttpGet("[action]")]
+        public IActionResult AllMovies()
         {
-            return Ok(_dbContext.Movies);
+            var movies = from movie in _dbContext.Movies
+                         select new
+                         {
+                             Id = movie.Id,
+                             Name = movie.Name,
+                             Duration = movie.Duration,
+                             Language = movie.Language,
+                             Rating = movie.Rating,
+                             Genre = movie.Genre,
+                             ImageUrl = movie.ImageUrl
+                         };
+            return Ok(movies);
         }
 
-        // GET api/<MoviesController>/5
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        // api/movies/moviedetail/1
+        [Authorize]
+        [HttpGet("[action]/{id}")]
+        public IActionResult MovieDetail(int id)
         {
-            var movieInDB = _dbContext.Movies.Find(id);
-            if (movieInDB == null)
-                return NotFound("No record found");
-            return Ok(movieInDB);
+            var movie = _dbContext.Movies.Find(id);
+            //var movie = _dbContext.Movies.SingleOrDefault(m => m.Id == id);
+            if (movie == null)
+                return NotFound();
+            return Ok(movie);
         }
 
         [Authorize(Roles="Admin")]

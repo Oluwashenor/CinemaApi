@@ -25,8 +25,12 @@ namespace CinemaApi.Controllers
         // GET: api/<MoviesController>
         [Authorize]
         [HttpGet("[action]")]
-        public IActionResult AllMovies()
+        public IActionResult AllMovies(String sort, int? pageNumber, int? pageSize)
         {
+
+            var currentPageNumber = pageNumber ?? 1;
+            var currentPageSize = pageSize ?? 5;
+
             var movies = from movie in _dbContext.Movies
                          select new
                          {
@@ -38,7 +42,15 @@ namespace CinemaApi.Controllers
                              Genre = movie.Genre,
                              ImageUrl = movie.ImageUrl
                          };
-            return Ok(movies);
+            switch (sort)
+            {
+                case "desc":
+                    return Ok(movies.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).OrderByDescending(m => m.Rating));
+                case "asc":
+                    return Ok(movies.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).OrderBy(m => m.Rating));
+                default:
+                    return Ok(movies.Skip((currentPageNumber - 1 )* currentPageSize).Take(currentPageSize));
+            }
         }
 
         // api/movies/moviedetail/1

@@ -30,23 +30,5 @@ namespace CinemaApi.Controllers
         {
             return "Hello From the Admin Side";
         }
-
-        // POST api/<SamplesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<SamplesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<SamplesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

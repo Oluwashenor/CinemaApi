@@ -14,5 +14,11 @@ namespace CinemaApi.Models
         public DateTime ReservationTime { get; set; }
         public int MovieId { get; set; }
         public int UserId { get; set; }
+        public bool Deleted { get; set; }
+
+        public Reservation()
+        {
+            Deleted = false;
+        }
     }
 }

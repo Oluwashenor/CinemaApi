@@ -22,8 +22,14 @@ namespace CinemaApi.Models
         public string Genre { get; set; }
         public string TrailerUrl { get; set; }
         public string ImageUrl { get; set; }
+        public bool Deleted { get; set; }
         [NotMapped]
         public IFormFile Image { get; set; }
         public ICollection<Reservation> Reservations { get; set; }
+
+        public Movie()
+        {
+            Deleted = false;
+        }
     }
 }

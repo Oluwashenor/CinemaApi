@@ -54,7 +54,6 @@ namespace CinemaApi.Controllers
             if(userInDb == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
-             //   return NotFound();
             }
             if(!SecurePasswordHasherHelper.Verify(user.Password, userInDb.Password))
             {

@@ -32,6 +32,7 @@ namespace CinemaApi.Controllers
             var currentPageSize = pageSize ?? 5;
 
             var movies = from movie in _dbContext.Movies
+                         where movie.Deleted == false
                          select new
                          {
                              Id = movie.Id,
@@ -58,8 +59,10 @@ namespace CinemaApi.Controllers
         [HttpGet("[action]/{id}")]
         public IActionResult MovieDetail(int id)
         {
-            var movie = _dbContext.Movies.Find(id);
-            //var movie = _dbContext.Movies.SingleOrDefault(m => m.Id == id);
+            var movie = (from m in _dbContext.Movies
+                         where m.Id == id
+                         where m.Deleted == false
+                        select m).FirstOrDefault();
             if (movie == null)
                 return NotFound();
             return Ok(movie);
@@ -88,7 +91,10 @@ namespace CinemaApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromForm] Movie movie)
         {
-            var movieInDb = _dbContext.Movies.Find(id);
+            var movieInDb = (from m in _dbContext.Movies
+                            where m.Deleted == false
+                            where m.Id == id
+                            select m).FirstOrDefault();
             if (movieInDb == null)
                 return NotFound("No Record found against this ID");
             var guid = Guid.NewGuid();
@@ -122,6 +128,7 @@ namespace CinemaApi.Controllers
         {
             var movies = from movie in _dbContext.Movies
                          where movie.Name.StartsWith(movieName)
+                         where movie.Deleted == false
                          select new
                          {
                              Id = movie.Id,
@@ -140,12 +147,9 @@ namespace CinemaApi.Controllers
             var movieInDb = _dbContext.Movies.Find(id);
             if (movieInDb == null)
                 return NotFound("No Record found of the same ID");
-            _dbContext.Movies.Remove(movieInDb);
+            movieInDb.Deleted = true;
             _dbContext.SaveChanges();
             return Ok("Record Deleted");
         }
-
-
-
     }
 }

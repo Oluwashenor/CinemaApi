@@ -35,11 +35,10 @@ namespace CinemaApi.Controllers
         [HttpGet("[action]")]
         public IActionResult GetReservations()
         {
-            // var reservations = _dbContext.Reservations;
-            // return Ok(reservations);
             var reservations = from reservation in _dbContext.Reservations
                                join customer in _dbContext.Users on reservation.UserId equals customer.Id
                                join movie in _dbContext.Movies on reservation.MovieId equals movie.Id
+                               where reservation.Deleted == false
                                select new
                                {
                                    Id = reservation.Id,
@@ -59,6 +58,7 @@ namespace CinemaApi.Controllers
                                join customer in _dbContext.Users on reservation.UserId equals customer.Id
                                join movie in _dbContext.Movies on reservation.MovieId equals movie.Id
                                where reservation.Id == id
+                               where reservation.Deleted == false
                                select new
                                {
                                    Id = reservation.Id,
@@ -83,7 +83,7 @@ namespace CinemaApi.Controllers
             var reservation = _dbContext.Reservations.Find(id);
             if (reservation == null)
                 return NotFound("No Record found of the same ID");
-            _dbContext.Reservations.Remove(reservation);
+            reservation.Deleted = true;
             _dbContext.SaveChanges();
             return Ok("Record Deleted");
         }

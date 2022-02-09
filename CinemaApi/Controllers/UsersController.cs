@@ -77,7 +77,27 @@ namespace CinemaApi.Controllers
                 user_id = userInDb.Id
             });
         }
-   
+    
+        
+         [HttpPost]
+         public IActionResult ChangePassword([FromForm]Password password)
+        {
+            var user = (_dbContext.Users.Where(u=> u.Email == password.Email)).FirstOrDefault();
+            if (user == null)
+                return NotFound();
+            if(!SecurePasswordHasherHelper.Verify(password.OldPassword, user.Password))
+            {
+                return BadRequest("Old Password not Correct");
+            }
+            if(password.NewPassword != password.ConfirmPassword)
+            {
+                return BadRequest("New Password and Confirm Password does not Match");
+            }
+            user.Password = SecurePasswordHasherHelper.Hash(password.ConfirmPassword);
+            _dbContext.SaveChanges();
+            return Ok("Password Updated Successfully");
+            
+        }
     
     }
 }

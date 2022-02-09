@@ -14,4 +14,12 @@ namespace CinemaApi.Models
         public string Role { get; set; }
         public ICollection<Reservation> Reservations { get; set; }
     }
+
+    public class Password
+    {
+        public string Email { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ConfirmPassword { get; set; }
+    }
 }

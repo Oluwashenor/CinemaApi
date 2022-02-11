@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CinemaApi.Data;
+using CinemaApi.DTOs;
 using CinemaApi.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 
 namespace CinemaApi.Controllers
@@ -20,18 +22,28 @@ namespace CinemaApi.Controllers
         public ReservationsController(CinemaDbContext dbContext)
         {
             _dbContext = dbContext;
+
         }
 
         [HttpPost]
-        public IActionResult Post(Reservation reservation)
+        public IActionResult Post(ReservationDTO reservationDto)
         {
+            var reservation = new Reservation
+            {
+               Qty = reservationDto.Qty,
+               Price = reservationDto.Price,
+               Phone = reservationDto.Phone,
+               ReservationTime = reservationDto.ReservationTime,
+               MovieId = reservationDto.Movie.Id,
+               UserId = reservationDto.User.Id,
+            };
             reservation.ReservationTime = DateTime.Now;
             _dbContext.Reservations.Add(reservation);
             _dbContext.SaveChanges();
             return StatusCode(StatusCodes.Status201Created);
         }
 
-       // [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
         [HttpGet("[action]")]
         public IActionResult GetReservations()
         {
@@ -39,13 +51,20 @@ namespace CinemaApi.Controllers
                                join customer in _dbContext.Users on reservation.UserId equals customer.Id
                                join movie in _dbContext.Movies on reservation.MovieId equals movie.Id
                                where reservation.Deleted == false
-                               select new
+                               select new ReservationDTO
                                {
                                    Id = reservation.Id,
                                    ReservationTime = reservation.ReservationTime,
-                                   CustomerName = customer.Id,
-                                   MovieName = movie.Name
-                               };
+                                   Phone = reservation.Phone,
+                                   Movie = new MovieDTO{
+                                       Id = movie.Id,
+                                       Name = movie.Name
+                                   },
+                                   User = new UserDTO{
+                                       Id = customer.Id,
+                                       Name = customer.Name
+                                   }
+                               };   
             return Ok(reservations);
         }
 
@@ -59,19 +78,25 @@ namespace CinemaApi.Controllers
                                join movie in _dbContext.Movies on reservation.MovieId equals movie.Id
                                where reservation.Id == id
                                where reservation.Deleted == false
-                               select new
+                               select new ReservationDTO
                                {
                                    Id = reservation.Id,
                                    ReservationTime = reservation.ReservationTime,
-                                   CustomerName = customer.Id,
-                                   MovieName = movie.Name,
-                                   Email = customer.Email,
                                    Qty = reservation.Qty,
                                    Price = reservation.Price,
                                    Phone = reservation.Phone,
-                                   PlayingDate = movie.PlayingDate,
-                                   PlayingTime = movie.PlayingTime
-                               }).FirstOrDefault();
+                                   User = new UserDTO{
+                                     Name =  customer.Name,
+                                     Id = customer.Id, 
+                                    Email = customer.Email,
+                                    },
+                                    Movie = new MovieDTO{
+                                        Name = movie.Name,
+                                        PlayingDate = movie.PlayingDate,
+                                        PlayingTime = movie.PlayingTime
+                                    },
+                                   
+                                  }).FirstOrDefault();
             return Ok(r);
         }
 

@@ -8,6 +8,7 @@ using CinemaApi.Data;
 using CinemaApi.Models;
 using System.IO;
 using Microsoft.AspNetCore.Authorization;
+using CinemaApi.DTOs;
 
 namespace CinemaApi.Controllers
 {
@@ -33,7 +34,7 @@ namespace CinemaApi.Controllers
 
             var movies = from movie in _dbContext.Movies
                          where movie.Deleted == false
-                         select new
+                         select new MovieDTO
                          {
                              Id = movie.Id,
                              Name = movie.Name,
@@ -59,19 +60,44 @@ namespace CinemaApi.Controllers
         [HttpGet("[action]/{id}")]
         public IActionResult MovieDetail(int id)
         {
-            var movie = (from m in _dbContext.Movies
-                         where m.Id == id
-                         where m.Deleted == false
-                        select m).FirstOrDefault();
-            if (movie == null)
+            var movieDTO = (from movie in _dbContext.Movies
+                         where movie.Id == id
+                         where movie.Deleted == false
+                        select new MovieDTO{
+                Name = movie.Name,
+                Description = movie.Description,
+                Language = movie.Description,
+                Duration = movie.Duration,
+                PlayingDate = movie.PlayingDate,
+                PlayingTime = movie.PlayingTime,
+                TicketPrice = movie.TicketPrice,
+                Rating = movie.Rating,
+                Genre = movie.Genre,
+                TrailerUrl = movie.TrailerUrl
+            }).FirstOrDefault();
+            if (movieDTO == null)
                 return NotFound();
-            return Ok(movie);
+            return Ok(movieDTO);
         }
 
         [Authorize(Roles="Admin")]
         [HttpPost]
-        public IActionResult Post([FromForm] Movie movie)
+        public IActionResult Post([FromForm]MovieDTO movieDTO)
         {
+            var movie = new Movie{
+                Image = movieDTO.Image,
+                ImageUrl = movieDTO.ImageUrl,
+                Name = movieDTO.Name,
+                Description = movieDTO.Description,
+                Language = movieDTO.Language,
+                Duration = movieDTO.Duration,
+                PlayingDate = movieDTO.PlayingDate,
+                PlayingTime = movieDTO.PlayingTime,
+                TicketPrice = movieDTO.TicketPrice,
+                Rating = movieDTO.Rating,
+                Genre = movieDTO.Genre,
+                TrailerUrl = movieDTO.TrailerUrl
+            };
             var guid = Guid.NewGuid();
             var filePath = Path.Combine("wwwroot", guid + ".jpg");
             if (movie.Image != null)
@@ -89,7 +115,7 @@ namespace CinemaApi.Controllers
         // PUT api/<MoviesController>/5
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromForm] Movie movie)
+        public IActionResult Put(int id, [FromForm] MovieDTO movieDTO)
         {
             var movieInDb = (from m in _dbContext.Movies
                             where m.Deleted == false
@@ -98,6 +124,19 @@ namespace CinemaApi.Controllers
             if (movieInDb == null)
                 return NotFound("No Record found against this ID");
             var guid = Guid.NewGuid();
+            var movie = new Movie{
+                Image = movieDTO.Image,
+                Name = movieDTO.Name,
+                Description = movieDTO.Description,
+               Language = movieDTO.Language,
+               Duration = movieDTO.Duration,
+               Genre = movieDTO.Genre,
+               PlayingDate = movieDTO.PlayingDate,
+               PlayingTime = movieDTO.PlayingTime,
+               Rating = movieDTO.Rating,
+               TrailerUrl = movieDTO.TrailerUrl,
+               TicketPrice = movieDTO.TicketPrice
+            };
             var filePath = Path.Combine("wwwroot", guid + ".jpg");
             if (movie.Image != null)
             {
@@ -129,11 +168,11 @@ namespace CinemaApi.Controllers
             var movies = from movie in _dbContext.Movies
                          where movie.Name.StartsWith(movieName)
                          where movie.Deleted == false
-                         select new
+                         select new MovieDTO
                          {
                              Id = movie.Id,
                              Name = movie.Name,
-                            ImageUrl = movie.ImageUrl
+                             ImageUrl = movie.ImageUrl
                          };
             return Ok(movies);
         }

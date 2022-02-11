@@ -16,6 +16,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using AutoMapper;
+using CinemaApi.DTOs;
+using CinemaApi.Models;
 
 namespace CinemaApi
 {
@@ -34,6 +37,7 @@ namespace CinemaApi
 
             services.AddControllers();
             services.AddMvc().AddXmlDataContractSerializerFormatters();
+           
             services.AddDbContext<CinemaDbContext>(option => option.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CinemaDB;Integrated Security = True"));
             services.AddSwaggerGen(c =>
             {
@@ -68,6 +72,14 @@ namespace CinemaApi
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
+
+            //var configuration = new MapperConfiguration(cfg =>
+            //{
+            //    cfg.CreateMap<Reservation, ReservationDTO>();
+            //    cfg.CreateMap<Movie, Movie>();
+            //});
+            //// only during development, validate your mappings; remove it before release
+            //configuration.AssertConfigurationIsValid();
 
             app.UseRouting();
 
